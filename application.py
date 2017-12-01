@@ -149,16 +149,24 @@ def checkin():
 @app.route("/checkout", methods=["GET", "POST"])
 @login_required
 def checkout():
-    # remove user from berg table (user is no longer in berg)
-    # keep track of elapsed time, indicating how long the user spent in berg
+    # record when the user entered annenberg
     start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID = :userID", userID=session["user_id"])
     if not start_time_dictionary:
         return apology("user isn't checked in")
-    start_time = start_time_dictionary[0]["checkInTime"]
-    db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
-    end_time = datetime.now(timezone('US/Eastern')).time()
+    FMT = '%H:%M:%S'
+    start_time_string = start_time_dictionary[0]["checkInTime"]
+    start_time = datetime.strptime(start_time_string, FMT).replace(tzinfo=None)
+
+    # record current time as endtime and calculate elapsed time
+    end_time = datetime.now()
     elapsed_time = end_time - start_time
-    #db.execute("UPDATE  SET totalTime = elapsed_time WHERE userID = :userID", elapsed_time=elapsed_time)
+    print(elapsed_time)
+    # using user_id, update users table by adding current elapsed time to the total eating time and incrementing numMeals
+    # using user_id, update users table by recalculating the user's average eating time: totalEatingTime/numMeals
+
+    #db.execute("UPDATE SET totalTime = elapsed_time WHERE userID = :userID", elapsed_time=elapsed_time)
+    # remove user from berg table (user is no longer in berg)
+    db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
     return redirect("/")
 
 @app.route("/tableview", methods=["GET", "POST"])
