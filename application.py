@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
@@ -32,9 +32,9 @@ Session(app)
 db = SQL("sqlite:///bergbuddies.db")
 
 
-@app.route("/")
-def home():
-    """Show home page with berg layout"""
+@app.route("/", methods=["GET", "POST"])
+def index():
+    """Show home page"""
     return render_template("home.html")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -102,7 +102,6 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["userID"]
-        session["logged_in"] = True
 
         # Redirect user to home page
         return redirect("/")
@@ -146,14 +145,12 @@ def checkin():
     else:
         return render_template("checkin.html")
 
-
-@app.route("/checkout", methods=["GET", "POST"])
 @login_required
 def checkout():
     # remove user from berg table (user is no longer in berg)
     # keep track of elapsed time, indicating how long the user spent in berg
     start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID = :userID", userID=session["user_id"])
-    start_time = start_time_dictionary["checkInTime"]
+    start_time = start_time_dictionary["checkInTime"][0]
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
     end_time = datetime.now(timezone('US/Eastern')).time()
     elapsed_time = end_time - start_time
