@@ -54,9 +54,11 @@
             </header>
         {% endif %}
 
-        <main class="container p-5">
-            {% block main %}{% endblock %}
-        </main>
+        {% block berg %}
+            <main class="container p-5">
+                {% block main %}{% endblock %}
+            </main>
+        {% endblock %}
 
     </body>
 

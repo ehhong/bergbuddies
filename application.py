@@ -31,7 +31,7 @@ Session(app)
 db = SQL("sqlite:///bergbuddies.db")
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
     """Show home page with berg layout"""
     return render_template("home.html")
