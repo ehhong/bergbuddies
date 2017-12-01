@@ -149,6 +149,14 @@ def checkout():
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
     return redirect("/")
 
+@app.route("/tableview", methods=["GET", "POST"])
+@login_required
+def tableview():
+    """display list of users in berg as a table"""
+    all_users = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
+    print("***************")
+    print(all_users)
+    return render_template("table.html", all_users=all_users)
 
 def errorhandler(e):
     """Handle error"""
