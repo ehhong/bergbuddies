@@ -31,10 +31,10 @@ Session(app)
 db = SQL("sqlite:///bergbuddies.db")
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     """Show home page"""
-    return render_template("layout.html")
+    return render_template("home.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -120,7 +120,8 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-@app.route("/checkin")
+@app.route("/checkin", methods=["GET", "POST"])
+@login_required
 def checkin():
     """check user into berg table (user is in berg)"""
     if request.method == "POST":
@@ -134,9 +135,19 @@ def checkin():
         # add user to berg table
         result = db.execute("INSERT INTO berg (userID, tableID, checkInTime) VALUES (:userID, :tableID, :checkInTime)",
                             userID=session["user_id"], tableID=tableID, checkInTime=datetime.now())
+        # userIDs are a unique field in berg (user cannot check in twice simultaneously), return error if userID already exists (execute will fail)
+        if not result:
+            return apology("user already checked in")
+        # return to home page
         return redirect("/")
     else:
         return render_template("checkin.html")
+
+@login_required
+def checkout():
+    # remove user from berg table (user is no longer in berg)
+    db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
+    return redirect("/")
 
 
 def errorhandler(e):
