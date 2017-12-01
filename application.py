@@ -31,12 +31,7 @@ Session(app)
 # TODO
 db = SQL("sqlite:///bergbuddies.db")
 
-<<<<<<< HEAD
-
-@app.route("/", methods=["GET", "POST"])
-=======
 @app.route("/")
->>>>>>> eabb5394aa68bc5e884e8c72d374722c8200d1aa
 def home():
     """Show home page with berg layout"""
     return render_template("home.html")
