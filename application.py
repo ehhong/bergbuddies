@@ -31,10 +31,9 @@ Session(app)
 # TODO
 db = SQL("sqlite:///bergbuddies.db")
 
-
-@app.route("/", methods=["GET", "POST"])
-def index():
-    """Show home page"""
+@app.route("/")
+def home():
+    """Show home page with berg layout"""
     return render_template("home.html")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -69,6 +68,7 @@ def register():
 
         # store user_id in session (to keep user logged in)
         session["user_id"] = result
+        session["logged_in"] = True
 
         return redirect("/")
     else: # if get method
@@ -145,6 +145,7 @@ def checkin():
     else:
         return render_template("checkin.html")
 
+@app.route("/checkout", methods=["GET", "POST"])
 @login_required
 def checkout():
     # remove user from berg table (user is no longer in berg)
