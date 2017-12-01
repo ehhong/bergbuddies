@@ -5,6 +5,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
+from pytz import timezone
 
 from helpers import apology, login_required
 
@@ -133,8 +134,9 @@ def checkin():
         tableID = request.form.get("tableRow") + str(request.form.get("tableCol"))
 
         # add user to berg table
+        currentTime = datetime.now(timezone('US/Eastern')).time()
         result = db.execute("INSERT INTO berg (userID, tableID, checkInTime) VALUES (:userID, :tableID, :checkInTime)",
-                            userID=session["user_id"], tableID=tableID, checkInTime=datetime.now())
+                            userID=session["user_id"], tableID=tableID, checkInTime=currentTime)
         # userIDs are a unique field in berg (user cannot check in twice simultaneously), return error if userID already exists (execute will fail)
         if not result:
             return apology("user already checked in")
@@ -146,7 +148,13 @@ def checkin():
 @login_required
 def checkout():
     # remove user from berg table (user is no longer in berg)
+    # keep track of elapsed time, indicating how long the user spent in berg
+    start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID = :userID", userID=session["user_id"])
+    start_time = start_time_dictionary["checkInTime"]
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
+    end_time = datetime.now(timezone('US/Eastern')).time()
+    elapsed_time = end_time - start_time
+    #db.execute("UPDATE  SET totalTime = elapsed_time WHERE userID = :userID", elapsed_time=elapsed_time)
     return redirect("/")
 
 @app.route("/tableview", methods=["GET", "POST"])
@@ -154,8 +162,6 @@ def checkout():
 def tableview():
     """display list of users in berg as a table"""
     all_users = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
-    print("***************")
-    print(all_users)
     return render_template("table.html", all_users=all_users)
 
 def errorhandler(e):
