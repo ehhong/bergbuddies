@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
@@ -32,9 +32,9 @@ Session(app)
 db = SQL("sqlite:///bergbuddies.db")
 
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    """Show home page"""
+@app.route("/")
+def home():
+    """Show home page with berg layout"""
     return render_template("home.html")
 
 @app.route("/register", methods=["GET", "POST"])
@@ -102,6 +102,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["userID"]
+        session["logged_in"] = True
 
         # Redirect user to home page
         return redirect("/")
@@ -145,6 +146,8 @@ def checkin():
     else:
         return render_template("checkin.html")
 
+
+@app.route("/checkout", methods=["GET", "POST"])
 @login_required
 def checkout():
     # remove user from berg table (user is no longer in berg)
