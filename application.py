@@ -141,6 +141,13 @@ def checkin():
         # userIDs are a unique field in berg (user cannot check in twice simultaneously), return error if userID already exists (execute will fail)
         if not result:
             return apology("user already checked in")
+
+        # update tables table
+        tableUpdate = db.execute("UPDATE tables SET count = count + 1 WHERE tableID=:tableID", tableID=tableID)
+        if not tableUpdate:
+            # if tableID not in tables, add it
+            db.execute("INSERT INTO tables (tableID, count) VALUES (:tableID, :count)", tableID=tableID, count=1)
+
         # return to home page
         return redirect("/")
     else:
@@ -163,10 +170,21 @@ def checkout():
     print(elapsed_time)
     # using user_id, update users table by adding current elapsed time to the total eating time and incrementing numMeals
     # using user_id, update users table by recalculating the user's average eating time: totalEatingTime/numMeals
-
     #db.execute("UPDATE SET totalTime = elapsed_time WHERE userID = :userID", elapsed_time=elapsed_time)
+
+    #emily
+    # get user's table number
+    tableID = db.execute("SELECT tableID FROM berg WHERE userID = :userID", userID=session["user_id"])[0]["tableID"]
+    # decrease count on user's table by 1
+    tableUpdate = db.execute("UPDATE tables SET count = count - 1 WHERE tableID=:tableID", tableID=tableID)
+    if not tableUpdate:
+        return apology("user isn't checked in (not sitting @ a table)")
+
     # remove user from berg table (user is no longer in berg)
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
+    start_time = start_time_dictionary[0]["checkInTime"]
+
+
     return redirect("/")
 
 @app.route("/tableview", methods=["GET", "POST"])
