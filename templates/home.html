@@ -5,5 +5,13 @@
 {% endblock %}
 
 {% block main %}
-    <p>home page</p>
+    {% if session.logged_in %}
+        <form action="/checkin" method="get">
+            <button class="btn btn-primary" type="submit">Check In</button>
+        </form>
+        <br>
+        <form action="/checkout" method="post">
+            <button class="btn btn-primary" type="submit">Check Out</button>
+        </form>
+    {% endif %}
 {% endblock %}
