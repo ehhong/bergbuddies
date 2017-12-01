@@ -1,10 +1,11 @@
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
+from pytz import timezone
 
 from helpers import apology, login_required
 
@@ -30,8 +31,12 @@ Session(app)
 # TODO
 db = SQL("sqlite:///bergbuddies.db")
 
+<<<<<<< HEAD
 
 @app.route("/", methods=["GET", "POST"])
+=======
+@app.route("/")
+>>>>>>> eabb5394aa68bc5e884e8c72d374722c8200d1aa
 def home():
     """Show home page with berg layout"""
     return render_template("home.html")
@@ -68,6 +73,7 @@ def register():
 
         # store user_id in session (to keep user logged in)
         session["user_id"] = result
+        session["logged_in"] = True
 
         return redirect("/")
     else: # if get method
@@ -101,7 +107,6 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["userID"]
-        session["logged_in"] = True
 
         # Redirect user to home page
         return redirect("/")
@@ -134,8 +139,9 @@ def checkin():
         tableID = request.form.get("tableRow") + str(request.form.get("tableCol"))
 
         # add user to berg table
+        currentTime = datetime.now(timezone('US/Eastern')).time()
         result = db.execute("INSERT INTO berg (userID, tableID, checkInTime) VALUES (:userID, :tableID, :checkInTime)",
-                            userID=session["user_id"], tableID=tableID, checkInTime=datetime.now())
+                            userID=session["user_id"], tableID=tableID, checkInTime=currentTime)
         # userIDs are a unique field in berg (user cannot check in twice simultaneously), return error if userID already exists (execute will fail)
         if not result:
             return apology("user already checked in")
@@ -144,12 +150,17 @@ def checkin():
     else:
         return render_template("checkin.html")
 
-
 @app.route("/checkout", methods=["GET", "POST"])
 @login_required
 def checkout():
     # remove user from berg table (user is no longer in berg)
+    # keep track of elapsed time, indicating how long the user spent in berg
+    start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID = :userID", userID=session["user_id"])
+    start_time = start_time_dictionary["checkInTime"][0]
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
+    end_time = datetime.now(timezone('US/Eastern')).time()
+    elapsed_time = end_time - start_time
+    #db.execute("UPDATE  SET totalTime = elapsed_time WHERE userID = :userID", elapsed_time=elapsed_time)
     return redirect("/")
 
 @app.route("/tableview", methods=["GET", "POST"])
@@ -157,8 +168,6 @@ def checkout():
 def tableview():
     """display list of users in berg as a table"""
     all_users = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
-    print("***************")
-    print(all_users)
     return render_template("table.html", all_users=all_users)
 
 def errorhandler(e):
