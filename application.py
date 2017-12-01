@@ -85,11 +85,11 @@ def login():
 
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            return apology("must provide username")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("must provide password", 403)
+            return apology("must provide password")
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = :username",
@@ -97,10 +97,10 @@ def login():
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
-            return apology("invalid username and/or password", 403)
+            return apology("invalid username and/or password")
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = rows[0]["userID"]
 
         # Redirect user to home page
         return redirect("/")
@@ -119,6 +119,24 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+@app.route("/checkin")
+def checkin():
+    """check user into berg table (user is in berg)"""
+    if request.method == "POST":
+        if not request.form.get("tableRow"):
+            return apology("must provide table row")
+        if not request.form.get("tableCol"):
+            return apology("must provide table column")
+
+        tableID = request.form.get("tableRow") + str(request.form.get("tableCol"))
+
+        # add user to berg table
+        result = db.execute("INSERT INTO berg (userID, tableID, checkInTime) VALUES (:userID, :tableID, :checkInTime)",
+                            userID=session["user_id"], tableID=tableID, checkInTime=datetime.now())
+        return redirect("/")
+    else:
+        return render_template("checkin.html")
 
 
 def errorhandler(e):
