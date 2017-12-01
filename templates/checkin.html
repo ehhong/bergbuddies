@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    check in
+{% endblock %}
+
+{% block main %}
+    <form action="/checkin" method="post">
+        <div class="form-group">
+            <p>Table ID:
+                <select name="tableRow" placeholder="row">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                </select>
+                <select name="tableCol" placeholder="column">
+                    {% for n in range(1, 13) %}
+                        <option value={{ n }}>{{ n }}</option>
+                    {% endfor %}
+                </select>
+            </p>
+        </div>
+        <button class="btn btn-primary" type="submit">Check In</button>
+    </form>
+{% endblock %}
