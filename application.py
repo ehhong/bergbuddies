@@ -5,6 +5,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
+from datetime import date
 from pytz import timezone
 
 from helpers import apology, login_required
@@ -155,12 +156,17 @@ def checkout():
         return apology("user isn't checked in")
     FMT = '%H:%M:%S'
     start_time_string = start_time_dictionary[0]["checkInTime"]
-    start_time = datetime.strptime(start_time_string, FMT).replace(tzinfo=None)
-
+    start_times = datetime.strptime(start_time_string, FMT)
+    today = date.today()
+    start_time = start_times.replace(year=today.year, month=today.month, day=today.day)
+    print("start time")
+    print(start_time)
     # record current time as endtime and calculate elapsed time
-    end_time = datetime.now()
+    end_time_time = datetime.now(timezone('US/Eastern')).time().strftime(FMT)
+    end_time_formatted = datetime.strptime(end_time_time, FMT)
+    end_time = end_time_formatted.replace(year=today.year, month=today.month, day=today.day)
+    print(end_time)
     elapsed_time = end_time - start_time
-    print(elapsed_time)
     # using user_id, update users table by adding current elapsed time to the total eating time and incrementing numMeals
     # using user_id, update users table by recalculating the user's average eating time: totalEatingTime/numMeals
 
