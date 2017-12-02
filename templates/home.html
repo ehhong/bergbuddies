@@ -19,7 +19,7 @@
     <br>
     <div class="container-fluid">
         <svg viewBox="0 0 1400 5600">
-            {% for h in range(12) %} <!-- number of rows (A,B,C) -->
+            {% for h in range(12) %} <!-- number of rows -->
                 {% for w in range(3) %} <!-- number of columns (A,B,C) -->
                     {% if w == 0 %}
                         {% set l = 'A' %}
@@ -29,8 +29,17 @@
                         {% set l = "C" %}
                     {% endif %}
                     <svg x={{ w*500 }} y={{ h*150 }}>
+                        {% set h = h + 1 %}
+                        {% set tableID = l + h|string %}
+                        <!--if table has occupants, print the number of buddies on the table-->
                         <rect width="400" height="100" style="fill:rgb(133,99,37);stroke-width:3;stroke:rgb(255,255,255)"/>
-                        <text x="50" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ l }}{{ h + 1 }}</text>
+                        {% for t in occTables %}
+                            {% if t['tableID'] == tableID %}
+                                <rect width="400" height="100" style="fill:rgb(155, 15, 15);stroke-width:3;stroke:rgb(255,255,255)"/>
+                                <text x="330" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ t['count'] }} :-)</text>
+                            {% endif %}
+                        {% endfor %}
+                        <text x="50" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ tableID }}</text>
                     </svg>
                 {% endfor %}
             {% endfor %}
