@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block head %}
+    <link href="/static/home.css" rel="stylesheet"/>
+{% endblock %}
+
 {% block title %}
     Home
 {% endblock %}
@@ -35,8 +39,10 @@
                         <rect width="400" height="100" style="fill:rgb(133,99,37);stroke-width:3;stroke:rgb(255,255,255)"/>
                         {% for t in occTables %}
                             {% if t['tableID'] == tableID %}
-                                <rect width="400" height="100" style="fill:rgb(155, 15, 15);stroke-width:3;stroke:rgb(255,255,255)"/>
-                                <text x="330" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ t['count'] }} :-)</text>
+                                <a id="table" href="/tablebuddies?tableID={{ tableID }}">
+                                    <rect width="400" height="100" style="fill:rgb(155, 15, 15);stroke-width:3;stroke:rgb(255,255,255)"/>
+                                    <text x="330" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ t['count'] }} :-)</text>
+                                </a>
                             {% endif %}
                         {% endfor %}
                         <text x="50" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ tableID }}</text>

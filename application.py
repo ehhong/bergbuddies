@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
@@ -252,6 +252,16 @@ def tableview():
     """display list of users in berg as a table"""
     all_users = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
     return render_template("table.html", all_users=all_users)
+
+
+@app.route("/tablebuddies")
+def tablebuddies():
+    """Display users at a particular table and their meal stages"""
+    if not request.args.get("tableID"):
+        raise RuntimeError("missing tableID")
+    tableID = request.args.get("tableID")
+    names = db.execute("SELECT users.name FROM berg INNER JOIN users ON berg.userID=users.userID WHERE tableID=:tableID", tableID=tableID)
+    return render_template("tablebuddies.html", names=names)
 
 def errorhandler(e):
     """Handle error"""

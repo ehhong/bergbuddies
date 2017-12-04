@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Table Buddies
+{% endblock %}
+
+{% block berg %}
+    <main class="container p-5">
+        {% for name in names %}
+            <li>{{ name['name'] }}</li>
+        {% endfor %}
+    </main>
+{% endblock %}
