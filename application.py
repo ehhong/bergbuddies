@@ -200,6 +200,32 @@ def checkout():
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
     return redirect("/")
 
+@app.route("/mealstage", methods=["GET", "POST"])
+def mealstage():
+    # called on-click when user clicks a certain table
+    # calculate how far all the users at the table are into their meal
+    tableID = "A1" #TEMPORARY. Assume user clicked on table "A1"
+    all_users = db.execute("SELECT berg.userID, users.name FROM berg INNER JOIN users ON berg.userID=users.userID WHERE tableID = :tableID", tableID=tableID)
+    print(all_users)
+    for user in all_users:
+        name = user["name"]
+        userID = user["userID"]
+        FMT = '%H:%M:%S'
+        # find time since user entered Annenberg in datetime format
+        checkinTime_db = db.execute("SELECT checkInTime FROM berg WHERE userID=:userID", userID=userID)
+        checkinTime = datetime.strptime(checkinTime_db[0]["checkInTime"], FMT)
+        checkinTime_delta = timedelta(hours=checkinTime.hour, minutes=checkinTime.minute, seconds=checkinTime.second)
+        # find current time in datetime format
+        currentTime = datetime.now(timezone('US/Eastern'))
+        currentTime_delta = timedelta(hours=currentTime.hour, minutes=currentTime.minute, seconds=currentTime.second)
+        # find difference between user check-in time and current time
+        diff = currentTime_delta - checkinTime_delta
+        # find user's average meal time
+        avg_time_db = db.execute("SELECT eatingTime FROM users WHERE userID=:userID", userID=userID)
+        avg_time = avg_time_db[0]["eatingTime"]
+        # find meal-completion percentage
+        percentage = (diff.total_seconds()/avg_time)*100
+
 @app.route("/tableview", methods=["GET", "POST"])
 @login_required
 def tableview():
@@ -211,7 +237,6 @@ def errorhandler(e):
     """Handle error"""
     # dunno how to do this or what this is for
     return None
-
 
 # listen for errors
 for code in default_exceptions:
