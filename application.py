@@ -225,8 +225,10 @@ def checkout():
 def mealstage():
     # called on-click when user clicks a certain table
     # calculate how far all the users at the table are into their meal
-    tableID = "A1" #TEMPORARY. Assume user clicked on table "A1"
+    tableID = "A4" #TEMPORARY. Assume user clicked on table "A1"
     all_users = db.execute("SELECT berg.userID, users.name FROM berg INNER JOIN users ON berg.userID=users.userID WHERE tableID = :tableID", tableID=tableID)
+    # create dict of different users and their eating times
+    eaters = {}
     for user in all_users:
         name = user["name"]
         userID = user["userID"]
@@ -242,9 +244,18 @@ def mealstage():
         diff = currentTime_delta - checkinTime_delta
         # find user's average meal time
         avg_time_db = db.execute("SELECT eatingTime FROM users WHERE userID=:userID", userID=userID)
-        avg_time = avg_time_db[0]["eatingTime"]
+        # if this is the user's first meal (and their average time is therefore nonexistent), give them a default average meal time of 60 minutes
+        if avg_time_db[0]["eatingTime"] == None:
+            avg_time = 216000.0
+        else:
+            avg_time = avg_time_db[0]["eatingTime"]
         # find meal-completion percentage
         percentage = (diff.total_seconds()/avg_time)*100
+        # if the percentage is greater than 1, just display as 100%
+        if percentage > 1:
+            percentage = 1
+        eaters[name] = percentage
+    return eaters
 
 @app.route("/tableview", methods=["GET", "POST"])
 @login_required
