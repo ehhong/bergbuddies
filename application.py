@@ -35,7 +35,15 @@ db = SQL("sqlite:///bergbuddies.db")
 @app.route("/")
 def home():
     """Show home page with berg layout"""
-    return render_template("home.html")
+    tables = db.execute("SELECT * FROM tables")
+    print(tables)
+    occTables = []
+    for t in tables:
+        if t["count"] > 0:
+            # add to list of occupied tables
+            occTables.append(t)
+    print(occTables)
+    return render_template("home.html", occTables=occTables)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
