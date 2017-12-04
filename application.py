@@ -157,18 +157,17 @@ def checkout():
     FMT = '%H:%M:%S'
     start_time_string = start_time_dictionary[0]["checkInTime"]
     start_times = datetime.strptime(start_time_string, FMT)
-    today = date.today()
     start_time = timedelta(hours=start_times.hour, minutes=start_times.minute, seconds=start_times.second)
-    print("start time")
-    print(start_time)
+
     # record current time as endtime and calculate elapsed time
     end_time_time = datetime.now(timezone('US/Eastern')).time().strftime(FMT)
     end_time_formatted = datetime.strptime(end_time_time, FMT)
     end_time = timedelta(hours=end_time_formatted.hour, minutes=end_time_formatted.minute, seconds=end_time_formatted.second)
     elapsed_time = end_time - start_time # timedelta
     print(elapsed_time)
+
     # using user_id, update users table by adding current elapsed time to the total eating time and incrementing numMeals
-    # get the current total eating time for the user from the database (timedelta). Problem is it doesn't format... that's fine I just need the data
+    # get the current total eating time for the user from the database (timedelta)
     total_elapsed_time_string1 = db.execute("SELECT totalEatingTime FROM users WHERE userID=:userID", userID=session["user_id"])
     if total_elapsed_time_string1[0]["totalEatingTime"] == None:
         total_elapsed_time = timedelta(hours=0, minutes=0, seconds=0)
@@ -178,7 +177,6 @@ def checkout():
     total_elapsed_time = total_elapsed_time + elapsed_time
     formatted_total_string = str(total_elapsed_time)
     db.execute("UPDATE users SET totalEatingTime=:total_elapsed_time WHERE userID=:userID", userID=session["user_id"], total_elapsed_time=formatted_total_string)
-    print(total_elapsed_time)
 
     # increment number of meals
     current_meals_db = db.execute("SELECT numMeals FROM users WHERE userID=:userID", userID=session["user_id"])
@@ -206,7 +204,6 @@ def mealstage():
     # calculate how far all the users at the table are into their meal
     tableID = "A1" #TEMPORARY. Assume user clicked on table "A1"
     all_users = db.execute("SELECT berg.userID, users.name FROM berg INNER JOIN users ON berg.userID=users.userID WHERE tableID = :tableID", tableID=tableID)
-    print(all_users)
     for user in all_users:
         name = user["name"]
         userID = user["userID"]
