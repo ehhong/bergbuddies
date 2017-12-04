@@ -4,8 +4,8 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import datetime
-from datetime import date
+from datetime import datetime, timedelta
+from datetime import date, time
 from pytz import timezone
 
 from helpers import apology, login_required
@@ -151,26 +151,51 @@ def checkin():
 @login_required
 def checkout():
     # record when the user entered annenberg
-    start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID = :userID", userID=session["user_id"])
+    start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID=:userID", userID=session["user_id"])
     if not start_time_dictionary:
         return apology("user isn't checked in")
     FMT = '%H:%M:%S'
     start_time_string = start_time_dictionary[0]["checkInTime"]
     start_times = datetime.strptime(start_time_string, FMT)
     today = date.today()
-    start_time = start_times.replace(year=today.year, month=today.month, day=today.day)
+    start_time = timedelta(hours=start_times.hour, minutes=start_times.minute, seconds=start_times.second)
     print("start time")
     print(start_time)
     # record current time as endtime and calculate elapsed time
     end_time_time = datetime.now(timezone('US/Eastern')).time().strftime(FMT)
     end_time_formatted = datetime.strptime(end_time_time, FMT)
-    end_time = end_time_formatted.replace(year=today.year, month=today.month, day=today.day)
-    print(end_time)
-    elapsed_time = end_time - start_time
+    end_time = timedelta(hours=end_time_formatted.hour, minutes=end_time_formatted.minute, seconds=end_time_formatted.second)
+    elapsed_time = end_time - start_time # timedelta
+    print(elapsed_time)
     # using user_id, update users table by adding current elapsed time to the total eating time and incrementing numMeals
-    # using user_id, update users table by recalculating the user's average eating time: totalEatingTime/numMeals
+    # get the current total eating time for the user from the database (timedelta). Problem is it doesn't format... that's fine I just need the data
+    total_elapsed_time_string1 = db.execute("SELECT totalEatingTime FROM users WHERE userID=:userID", userID=session["user_id"])
+    if total_elapsed_time_string1[0]["totalEatingTime"] == None:
+        total_elapsed_time = timedelta(hours=0, minutes=0, seconds=0)
+    else:
+        total_elapsed_time_string2 = datetime.strptime(total_elapsed_time_string1[0]["totalEatingTime"], "%H:%M:%S")
+        total_elapsed_time = timedelta(hours=total_elapsed_time_string2.hour, minutes=total_elapsed_time_string2.minute, seconds=total_elapsed_time_string2.second)
+    total_elapsed_time = total_elapsed_time + elapsed_time
+    formatted_total_string = str(total_elapsed_time)
+    db.execute("UPDATE users SET totalEatingTime=:total_elapsed_time WHERE userID=:userID", userID=session["user_id"], total_elapsed_time=formatted_total_string)
+    print(total_elapsed_time)
 
-    #db.execute("UPDATE SET totalTime = elapsed_time WHERE userID = :userID", elapsed_time=elapsed_time)
+    # increment number of meals
+    current_meals_db = db.execute("SELECT numMeals FROM users WHERE userID=:userID", userID=session["user_id"])
+    # if this is the user's first meal, set the amount of current meals to 1 (i.e. incrementing from 0)
+    if current_meals_db[0]["numMeals"] == None:
+        current_meals = 1
+    else:
+        current_meals = current_meals_db[0]["numMeals"]
+        current_meals = current_meals + 1
+    #update the database to increment current number of meals
+    db.execute("UPDATE users SET numMeals=:current_meals WHERE userID=:userID", userID=session["user_id"], current_meals=current_meals)
+
+    # using user_id, update users table by recalculating the user's average eating time in seconds
+    eating_duration = total_elapsed_time.total_seconds()
+    avg_eating_time = (total_elapsed_time/current_meals).total_seconds()
+    db.execute("UPDATE users SET eatingTime=:avg_eating_time WHERE userID=:userID", userID=session["user_id"], avg_eating_time=avg_eating_time)
+
     # remove user from berg table (user is no longer in berg)
     db.execute("DELETE FROM berg WHERE userID = :userID", userID=session["user_id"])
     return redirect("/")
