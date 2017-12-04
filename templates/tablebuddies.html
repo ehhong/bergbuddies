@@ -6,8 +6,8 @@
 
 {% block berg %}
     <main class="container p-5">
-        {% for name in names %}
-            <li>{{ name['name'] }}</li>
+        {% for buddy in buddies %}
+            <li>name: {{ buddy['name'] }}, percentage: {{ buddy['percentage'] }}</li>
         {% endfor %}
     </main>
 {% endblock %}

@@ -222,13 +222,13 @@ def checkout():
     return redirect("/")
 
 @app.route("/mealstage", methods=["GET", "POST"])
-def mealstage():
+def mealstage(tbID):
     # called on-click when user clicks a certain table
     # calculate how far all the users at the table are into their meal
-    tableID = "A4" #TEMPORARY. Assume user clicked on table "A1"
+    tableID = tbID
     all_users = db.execute("SELECT berg.userID, users.name FROM berg INNER JOIN users ON berg.userID=users.userID WHERE tableID = :tableID", tableID=tableID)
     # create dict of different users and their eating times
-    eaters = {}
+    eaters = []
     for user in all_users:
         name = user["name"]
         userID = user["userID"]
@@ -254,7 +254,8 @@ def mealstage():
         # if the percentage is greater than 1, just display as 100%
         if percentage > 1:
             percentage = 1
-        eaters[name] = percentage
+        eaters.append({'name': name, 'percentage': percentage})
+    # returns a list of objects formatted {'name': first last, 'percentage': .7678}
     return eaters
 
 @app.route("/tableview", methods=["GET", "POST"])
@@ -271,8 +272,8 @@ def tablebuddies():
     if not request.args.get("tableID"):
         raise RuntimeError("missing tableID")
     tableID = request.args.get("tableID")
-    names = db.execute("SELECT users.name FROM berg INNER JOIN users ON berg.userID=users.userID WHERE tableID=:tableID", tableID=tableID)
-    return render_template("tablebuddies.html", names=names)
+    buddies = mealstage(tableID)
+    return render_template("tablebuddies.html", buddies=buddies)
 
 def errorhandler(e):
     """Handle error"""
