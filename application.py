@@ -292,12 +292,14 @@ def tablebuddies():
 
     return render_template("tablebuddies.html", buddies=buddies)
 
-@app.route("/randombuddy")
+
+@app.route("/random", methods=["POST"])
 def randombuddy():
     buddies = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
     index = random.randint(0, len(buddies) - 1)
     buddy = buddies[index]
-    return render_template("randombuddy.html", buddy=buddy)
+    return render_template("randomhtml", buddy=buddy)
+
 
 def errorhandler(e):
     """Handle error"""
