@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 from datetime import date, time
 from pytz import timezone
+from random import *
 
 from helpers import apology, login_required
 
@@ -290,6 +291,13 @@ def tablebuddies():
         buddies[i], buddies[min_idx] = buddies[min_idx], buddies[i]
 
     return render_template("tablebuddies.html", buddies=buddies)
+
+@app.route("/randombuddy")
+def randombuddy():
+    buddies = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
+    index = random.randint(0, len(buddies) - 1)
+    buddy = buddies[index]
+    return render_template("randombuddy.html", buddy=buddy)
 
 def errorhandler(e):
     """Handle error"""
