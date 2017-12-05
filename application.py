@@ -291,6 +291,10 @@ def tablebuddies():
 
     return render_template("tablebuddies.html", buddies=buddies)
 
+@app.route("/random", methods=["POST"])
+def random():
+    return render_template("random.html")
+
 def errorhandler(e):
     """Handle error"""
     # dunno how to do this or what this is for
