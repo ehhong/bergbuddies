@@ -251,9 +251,11 @@ def mealstage(tbID):
         else:
             avg_time = avg_time_db[0]["eatingTime"]
         # find meal-completion percentage
+        print(diff_seconds)
+        print(avg_time)
         percentage = (diff_seconds/avg_time)*100
-        # if the percentage is greater than 1, just display as 100%
-        if percentage > 1:
+        # if the percentage is greater than 100, just display as 100%
+        if percentage > 100:
             percentage = 100
         eaters.append({'name': name, 'percentage': percentage})
     # returns a list of objects formatted {'name': first last, 'percentage': .7678}
