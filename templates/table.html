@@ -8,7 +8,6 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>User ID</th>
                 <th>Name</th>
                 <th>Table ID</th>
                 <th>Check in Time</th>
@@ -17,7 +16,6 @@
         </thead>
         {% for user in all_users %}
             <tr>
-                <td>{{ user["userID"] }}</td>
                 <td>{{ user["name"] }}</td>
                 <td>{{ user["tableID"] }}</td>
                 <td>{{ user["checkInTime"] }}</td>
