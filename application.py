@@ -122,6 +122,7 @@ def login():
 
 
 @app.route("/logout")
+@login_required
 def logout():
     """Log user out"""
 
@@ -242,25 +243,23 @@ def mealstage(tbID):
         currentTime_delta = timedelta(hours=currentTime.hour, minutes=currentTime.minute, seconds=currentTime.second)
         # find difference between user check-in time and current time
         diff = currentTime_delta - checkinTime_delta
-        diff_seconds = diff.total_seconds()
         # find user's average meal time
         avg_time_db = db.execute("SELECT eatingTime FROM users WHERE userID=:userID", userID=userID)
-        # if this is the user's first meal (and their average time is therefore nonexistent), give them a default average meal time of 45 minutes
+        # if this is the user's first meal (and their average time is therefore nonexistent), give them a default average meal time of 60 minutes
         if avg_time_db[0]["eatingTime"] == None:
-            avg_time = 2700.0
+            avg_time = 216000.0
         else:
             avg_time = avg_time_db[0]["eatingTime"]
         # find meal-completion percentage
-        percentage = (diff_seconds/avg_time)*100
+        percentage = (diff.total_seconds()/avg_time)*100
         # if the percentage is greater than 1, just display as 100%
         if percentage > 1:
-            percentage = 100
+            percentage = 1
         eaters.append({'name': name, 'percentage': percentage})
     # returns a list of objects formatted {'name': first last, 'percentage': .7678}
     return eaters
 
 @app.route("/tableview", methods=["GET", "POST"])
-@login_required
 def tableview():
     """display list of users in berg as a table"""
     all_users = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
