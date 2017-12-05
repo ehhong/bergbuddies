@@ -9,21 +9,21 @@
 {% endblock %}
 
 {% block berg %}
+    <main class="container p-5">
     {% if session.logged_in %}
-        <main class="container p-5">
-            <form action="/checkin" method="get" style="display:inline-block">
-                <button class="btn btn-success btn-lg" type="submit">Check In</button>
-            </form>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <form action="/checkout" method="post" style="display:inline-block">
-                <button class="btn btn-info btn-lg" type="submit">Check Out</button>
-            </form>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <form action="/random" method="post" style="display:inline-block">
-                <button class="btn btn-warning btn-lg" type="submit">Random Eating Buddy</button>
-            </form>
-        </main>
+        <form action="/checkin" method="get" style="display:inline-block">
+            <button class="btn btn-success btn-lg" type="submit">Check In</button>
+        </form>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <form action="/checkout" method="post" style="display:inline-block">
+            <button class="btn btn-info btn-lg" type="submit">Check Out</button>
+        </form>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     {% endif %}
+        <form action="/random" method="get" style="display:inline-block">
+            <button class="btn btn-warning btn-lg" type="submit">Random Eating Buddy</button>
+        </form>
+    </main>
     <br>
     <div class="container-fluid">
         <svg viewBox="0 0 1400 2600">

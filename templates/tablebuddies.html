@@ -6,6 +6,7 @@
 
 {% block berg %}
     <main class="container p-5">
+        <h1>{{ tableID }}</h1>
         <table class="table table-striped">
         <thead>
             <tr>
@@ -17,7 +18,6 @@
             <tr>
                 <td>{{ buddy['name'] }}</td>
                 <td><progress value={{ '%02d' % buddy['percentage'] }} max="100">::after</progress>&nbsp;&nbsp;{{ '%2d' % buddy['percentage'] }}%</td>
-                <!--buddy['percentage'] label is for debugging-->
                 <!--to style css https://css-tricks.com/html5-progress-element/-->
             </tr>
         {% endfor %}

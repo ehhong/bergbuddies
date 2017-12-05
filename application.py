@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 from datetime import date, time
 from pytz import timezone
-from random import *
+from random import randint
 
 from helpers import apology, login_required
 
@@ -247,9 +247,9 @@ def mealstage(tbID):
         diff_seconds = diff.total_seconds()
         # find user's average meal time
         avg_time_db = db.execute("SELECT eatingTime FROM users WHERE userID=:userID", userID=userID)
-        # if this is the user's first meal (and their average time is therefore nonexistent), give them a default average meal time of 60 minutes
+        # if this is the user's first meal (and their average time is therefore nonexistent), give them a default average meal time of 45 minutes
         if avg_time_db[0]["eatingTime"] == None:
-            avg_time = 216000.0
+            avg_time = 2700.0
         else:
             avg_time = avg_time_db[0]["eatingTime"]
         # find meal-completion percentage
@@ -290,15 +290,17 @@ def tablebuddies():
         # Swap the found minimum element with the first element
         buddies[i], buddies[min_idx] = buddies[min_idx], buddies[i]
 
-    return render_template("tablebuddies.html", buddies=buddies)
+    return render_template("tablebuddies.html", buddies=buddies, tableID=tableID)
 
 
-@app.route("/random", methods=["POST"])
+@app.route("/random", methods=["GET", "POST"])
 def randombuddy():
     buddies = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
-    index = random.randint(0, len(buddies) - 1)
+    if not buddies:
+        return render_template("random.html")
+    index = randint(0, len(buddies) - 1)
     buddy = buddies[index]
-    return render_template("randomhtml", buddy=buddy)
+    return render_template("random.html", buddy=buddy)
 
 
 def errorhandler(e):
