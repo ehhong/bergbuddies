@@ -16,7 +16,7 @@
         {% for buddy in buddies %}
             <tr>
                 <td>{{ buddy['name'] }}</td>
-                <td><progress value={{ '%02d' % buddy['percentage'] }} max="100">::after</progress>     {{ '%02d' % buddy['percentage'] }}%</td>
+                <td><progress value={{ '%02d' % buddy['percentage'] }} max="100">::after</progress>&nbsp;&nbsp;{{ '%2d' % buddy['percentage'] }}%</td>
                 <!--buddy['percentage'] label is for debugging-->
                 <!--to style css https://css-tricks.com/html5-progress-element/-->
             </tr>
