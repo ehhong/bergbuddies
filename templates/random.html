@@ -8,6 +8,7 @@
     <form action="/random" method="GET">
         <div class="form-group">
             <p>Your random eating buddy is:</p>
+            <!--display random buddy if buddy exists (someone is checked into berg)-->
             {% if buddy %}
             <table class="table table-striped">
                 <thead>
@@ -23,6 +24,7 @@
                     <td>{{ buddy['checkInTime'] }}</td>
                 </tr>
             </table>
+            <!--if no one is checked into berg (no buddy is passed in)-->
             {% else %}
                 <b>
                     <p class="text-info">Sorry! There is no one currently checked into Annenberg.</p>

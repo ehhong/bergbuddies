@@ -30,20 +30,20 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-# TODO
 db = SQL("sqlite:///bergbuddies.db")
 
 @app.route("/")
 def home():
     """Show home page with berg layout"""
     tables = db.execute("SELECT * FROM tables")
-    print(tables)
+    # list of occupied tables
     occTables = []
     for t in tables:
+        # if there is at least one person at the tabl
         if t["count"] > 0:
             # add to list of occupied tables
             occTables.append(t)
-    print(occTables)
+    # render home page
     return render_template("home.html", occTables=occTables)
 
 @app.route("/register", methods=["GET", "POST"])
@@ -80,6 +80,7 @@ def register():
         session["user_id"] = result
         session["logged_in"] = True
 
+        # redirect to display home page
         return redirect("/")
     else: # if get method
         return render_template("register.html")
@@ -130,19 +131,20 @@ def logout():
     # Forget any user_id
     session.clear()
 
-    # Redirect user to login form
+    # Redirect user to home page
     return redirect("/")
 
 @app.route("/checkin", methods=["GET", "POST"])
-@login_required
+@login_required # user can only check in if logged in
 def checkin():
-    """check user into berg table (user is in berg)"""
+    """check user into berg buddies (user is in berg)"""
     if request.method == "POST":
         if not request.form.get("tableRow"):
             return apology("must provide table row")
         if not request.form.get("tableCol"):
             return apology("must provide table column")
 
+        # store tableID based on user's input
         tableID = request.form.get("tableRow") + str(request.form.get("tableCol"))
 
         # add user to berg table
@@ -153,7 +155,7 @@ def checkin():
         if not result:
             return apology("user already checked in")
 
-        # update tables table
+        # update tables table by adding 1 to the number of people checked into that table
         tableUpdate = db.execute("UPDATE tables SET count = count + 1 WHERE tableID=:tableID", tableID=tableID)
         if not tableUpdate:
             # if tableID not in tables, add it
@@ -167,6 +169,7 @@ def checkin():
 @app.route("/checkout", methods=["GET", "POST"])
 @login_required
 def checkout():
+    """check user out of berg buddies (user is leaving berg)"""
     # record when the user entered annenberg
     start_time_dictionary = db.execute("SELECT checkInTime FROM berg WHERE userID=:userID", userID=session["user_id"])
     if not start_time_dictionary:
@@ -225,6 +228,7 @@ def checkout():
 
 @app.route("/mealstage", methods=["GET", "POST"])
 def mealstage(tbID):
+    """calculate how far users are into their meal by each table"""
     # called on-click when user clicks a certain table
     # calculate how far all the users at the table are into their meal
     tableID = tbID
@@ -265,20 +269,21 @@ def mealstage(tbID):
 
 @app.route("/tableview", methods=["GET", "POST"])
 def tableview():
-    """display list of users in berg as a table"""
+    """display list of users in berg in a table"""
     all_users = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
     return render_template("table.html", all_users=all_users)
 
 
 @app.route("/tablebuddies")
 def tablebuddies():
-    """Display users at a particular table and their meal stages"""
+    """Display users in a list at a particular table and their meal stages"""
+    # make sure a table ID is provided
     if not request.args.get("tableID"):
         raise RuntimeError("missing tableID")
     tableID = request.args.get("tableID")
     buddies = mealstage(tableID)
 
-    # selection sort to sort buddies by meal stage completion
+    # selection sort to sort buddies by meal stage completion (lowest to highest)
     # selection sort code credit: http://www.geeksforgeeks.org/selection-sort/
     for i in range(len(buddies)):
         # Find the minimum element in remaining unsorted array
@@ -295,9 +300,12 @@ def tablebuddies():
 
 @app.route("/random", methods=["GET", "POST"])
 def randombuddy():
+    """ select a random user checked into berg buddies """
     buddies = db.execute("SELECT berg.userID, users.name, users.eatingTime, berg.checkInTime, berg.tableID FROM berg INNER JOIN users ON berg.userID = users.userID")
+    # check that someone is checked in to berg
     if not buddies:
         return render_template("random.html")
+    # find random index of someone in berg
     index = randint(0, len(buddies) - 1)
     buddy = buddies[index]
     return render_template("random.html", buddy=buddy)

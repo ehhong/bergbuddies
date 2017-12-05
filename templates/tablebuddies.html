@@ -14,11 +14,11 @@
                 <th>Meal Completion Stage</th>
             </tr>
         </thead>
+        <!--display names & meal progress bars of users at a particular table-->
         {% for buddy in buddies %}
             <tr>
                 <td>{{ buddy['name'] }}</td>
                 <td><progress value={{ '%02d' % buddy['percentage'] }} max="100">::after</progress>&nbsp;&nbsp;{{ '%2d' % buddy['percentage'] }}%</td>
-                <!--to style css https://css-tricks.com/html5-progress-element/-->
             </tr>
         {% endfor %}
     </main>

@@ -1,15 +1,12 @@
 {% extends "layout.html" %}
 
-{% block head %}
-    <link href="/static/home.css" rel="stylesheet"/>
-{% endblock %}
-
 {% block title %}
     Home
 {% endblock %}
 
 {% block berg %}
     <main class="container p-5">
+    <!--only display check in and check out buttons if user is logged in-->
     {% if session.logged_in %}
         <form action="/checkin" method="get" style="display:inline-block">
             <button class="btn btn-success btn-lg" type="submit">Check In</button>
@@ -26,9 +23,10 @@
     </main>
     <br>
     <div class="container-fluid">
+        <!--viewbox for all tables/svg elements-->
         <svg viewBox="0 0 1400 2600">
-            {% for h in range(17) %} <!-- number of rows -->
-                {% for w in range(3) %} <!-- number of columns (A,B,C) -->
+            {% for h in range(17) %} <!-- number of columns -->
+                {% for w in range(3) %} <!-- number of rows (A,B,C) -->
                     {% if w == 0 %}
                         {% set l = 'A' %}
                     {% elif w == 1 %}
@@ -36,19 +34,23 @@
                     {% elif w == 2 %}
                         {% set l = "C" %}
                     {% endif %}
+                    <!--position each table depending on h & w-->
                     <svg x={{ w*500 }} y={{ h*150 }}>
                         {% set h = h + 1 %}
                         {% set tableID = l + h|string %}
-                        <!--if table has occupants, print the number of buddies on the table-->
                         <rect width="400" height="100" style="fill:rgb(133,99,37);stroke-width:3;stroke:rgb(255,255,255)"/>
+                        <!--if table has occupants, print the number of buddies on the table-->
                         {% for t in occTables %}
                             {% if t['tableID'] == tableID %}
                                 <a id="table" xlink:href="/tablebuddies?tableID={{ tableID }}">
+                                    <!--print red table over brown table-->
                                     <rect width="400" height="100" style="fill:rgb(155, 15, 15);stroke-width:3;stroke:rgb(255,255,255)"/>
+                                    <!--display number of buddies at that table-->
                                     <text x="330" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ t['count'] }} :-)</text>
                                 </a>
                             {% endif %}
                         {% endfor %}
+                        <!--print tableID on the table-->
                         <text x="50" y="60" style="text-anchor: middle" font-size="36px" font-weight="bold" fill="white">{{ tableID }}</text>
                     </svg>
                 {% endfor %}

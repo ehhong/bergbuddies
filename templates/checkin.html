@@ -8,12 +8,14 @@
     <form action="/checkin" method="post">
         <div class="form-group">
             <p>Table ID:
+                <!--allow user to input a table ID-->
                 <select name="tableRow" placeholder="row">
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>
                 </select>
                 <select name="tableCol" placeholder="column">
+                    <!--17 total columns of tables in annenberg-->
                     {% for n in range(1, 18) %}
                         <option value={{ n }}>{{ n }}</option>
                     {% endfor %}
