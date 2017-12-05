@@ -5,10 +5,30 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/random" method="post">
+    <form action="/random" method="GET">
         <div class="form-group">
-            <p>Your random eating buddy is
-            </p>
+            <p>Your random eating buddy is:</p>
+            {% if buddy %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Table ID</th>
+                        <th>Check In Time</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>{{ buddy['name'] }}</td>
+                    <td>{{ buddy['tableID'] }}</td>
+                    <td>{{ buddy['checkInTime'] }}</td>
+                </tr>
+            </table>
+            {% else %}
+                <b>
+                    <p class="text-info">Sorry! There is no one currently checked into Annenberg.</p>
+                    <p class="text-info">Don't worry -- you can approach someone new without berg buddies!</p>
+                </b>
+            {% endif %}
         </div>
         <button class="btn btn-warning" type="submit">Find me another!</button>
     </form>

@@ -19,7 +19,12 @@
                 <td>{{ user["name"] }}</td>
                 <td>{{ user["tableID"] }}</td>
                 <td>{{ user["checkInTime"] }}</td>
-                <td>{{ user["eatingTime"] }}</td>
+                {% if not user['eatingTime'] %}
+                    <td>{{ user["eatingTime"] }}</td>
+                {% else %}
+                    {% set eatingTime = user["eatingTime"] | int %}
+                    <td>{{ '%2d' %  (eatingTime/60) }} min</td>
+                {% endif %}
             </tr>
         {% endfor %}
     </table>
