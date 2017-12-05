@@ -6,8 +6,20 @@
 
 {% block berg %}
     <main class="container p-5">
+        <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Meal Completion Stage</th>
+            </tr>
+        </thead>
         {% for buddy in buddies %}
-            <li>name: {{ buddy['name'] }}, percentage: {{ buddy['percentage'] }}</li>
+            <tr>
+                <td>{{ buddy['name'] }}</td>
+                <td><progress value="22" max="100"></progress>{{ buddy['percentage'] }}</td>
+                <!--buddy['percentage'] label is for debugging-->
+                <!--to style css https://css-tricks.com/html5-progress-element/-->
+            </tr>
         {% endfor %}
     </main>
 {% endblock %}

@@ -273,6 +273,19 @@ def tablebuddies():
         raise RuntimeError("missing tableID")
     tableID = request.args.get("tableID")
     buddies = mealstage(tableID)
+
+    # selection sort to sort buddies by meal stage completion
+    # selection sort code credit: http://www.geeksforgeeks.org/selection-sort/
+    for i in range(len(buddies)):
+        # Find the minimum element in remaining unsorted array
+        min_idx = i
+        for j in range(i+1, len(buddies)):
+            if buddies[min_idx]['percentage'] > buddies[j]['percentage']:
+                min_idx = j
+
+        # Swap the found minimum element with the first element
+        buddies[i], buddies[min_idx] = buddies[min_idx], buddies[i]
+
     return render_template("tablebuddies.html", buddies=buddies)
 
 def errorhandler(e):
