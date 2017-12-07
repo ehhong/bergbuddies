@@ -50,48 +50,38 @@ The login required function creates a login_required decorator that makes certai
 Application.py sets up the Flask application, configures session to use a filesystem to manage users' login info, and uses the CS50 to use the SQLite database bergbuddies.db.
 From there, the file is organized into functions corresponding to an application route.
 
-Home:
-
+##Home:
 The home function corresponds to the "/" route of the application, or the first visible page. The home function passes in a list of occupied tables to the template home.html. To do this, it selects all objects from the tables table, traverses through them, and appends tables with a count greater than 1 to a list named "occTables".
 
-Register:
-
+##Register:
 The register function corresponds to the "/register" route of the application. If the route is reached using a "GET" method, the function renders the register.html page.
 If the route is reached using a "POST" method, the function checks that all fields are filled (name, username, password), generates the hashed form of the password using a hash function, and inserts a new user into the users table with those values. If the username is the same as another username, the database insert request will return as none because the username field is set as an index and must have unique values. If the request returns as none, the apology function is called, displaying an error message.
 If the user is successfully added to the database, the user is logged in by storing the user's ID in session and setting session's logged in variable to true. The application then redirects to the home page.
 
-Login:
-
+##Login:
 The login function corresponds to the "/login" route of the application. If the route is reached using a "GET" method, the function renders the login.html page.
 If the route is reached using a "POST" method, the function checks that a username and password were entered and queries for users in the database with the same username. If the username exists, the inputted password is hashed and checked with the stored hash value. The user is then logged in by storing the userID in session and setting the logged_in variable to true. The function then redirects to the home page.
 
-Logout:
-
+##Logout:
 The logout function clears all session values and redirects to the home page.
 
-Check in:
-
+##Check in:
 The login function corresponds to the "/checkin" route of the application. If the route is reached using a "GET" method, the function renders the checkin.html page, where the user can input a table ID.
 If the route is reached using a "POST" method, the function checks that a table ID has been selected, finds the current time using the python datetime library, and adds the user with a corresponding table ID and check in time to the berg table. Because userIDs are indexed in berg and must be unique, if the insert request returns as none, the user is already checked in and an error message is returned.
 If the user is successfully checked in, the count of the user's table will be increased by one in the tables table. If the table does not exist in the tables table, it will be inserted. The function will then redirect to the home page.
 
-Check out:
-
-## michele pls finish stuff about meal time
+##Check out:
+### michele pls finish stuff about meal time
 The user's table count is decreased by one in the tables table, and the user is removed from the berg table. The function then redirects to the home page.
 
-Meal Stage:
+##Meal Stage:
+### michele pls describe this one too
 
-## michele pls describe this one too
-
-Table View:
-
+##Table View:
 Table view selects all entries in the berg table and passes the list of all users in berg to the table.html template as it is rendered.
 
-Table Buddies:
-
+##Table Buddies:
 Table buddies takes in a table ID and gets a list of users at the given table and their meal stage values through the mealstage function. The list of users is then sorted by increasing meal completion percentage using a selection sort. The function then renders the tablebuddies.html template, passing through the sorted list of users and their meal stages.
 
-Random Buddy:
-
+## Random Buddy:
 Random buddy selects all entries in the berg table. It then finds a random integer between 0 and the number of users checked into berg (length of all berg entries list minus 1) and saves the user at the random index. The random user is then passed into the rendering random.html template.
